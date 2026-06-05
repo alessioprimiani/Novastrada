@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaStrada — Italiani in Polonia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#0D2247;--navy-mid:#1D4E89;--green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--red-it:#CE2B37;--white:#fff;--off:#F7F6F2;--text:#0D2247;--text-mid:#3A5070;--text-light:#6B7E96;--border:rgba(13,34,71,0.1);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:68px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-links{display:flex;align-items:center;gap:2rem;}
+.nav-links a{font-size:14px;color:var(--text-mid);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--navy);}
+.nav-cta{background:var(--navy)!important;color:white!important;padding:8px 20px;border-radius:4px;font-weight:500!important;}
+.nav-cta:hover{background:var(--navy-mid)!important;}
+
+/* HERO */
+.hero{padding:140px 5% 100px;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;min-height:92vh;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:520px;height:520px;border-radius:50%;border:1px solid rgba(29,78,137,0.07);pointer-events:none;}
+.hero::after{content:'';position:absolute;top:-40px;right:-40px;width:380px;height:380px;border-radius:50%;border:1px solid rgba(29,78,137,0.07);pointer-events:none;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green-dark);background:var(--green-light);padding:6px 14px;border-radius:2px;margin-bottom:1.5rem;}
+.eyebrow span{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,4.5vw,56px);font-weight:600;line-height:1.15;letter-spacing:-.02em;color:var(--navy);margin-bottom:1.5rem;}
+h1 em{font-style:italic;color:var(--navy-mid);}
+.hero-sub{font-size:17px;line-height:1.7;color:var(--text-mid);max-width:480px;margin-bottom:2.5rem;}
+.hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.btn-primary{background:var(--navy);color:white;padding:14px 28px;border-radius:4px;font-size:15px;font-weight:500;text-decoration:none;transition:background .2s,transform .15s;display:inline-block;}
+.btn-primary:hover{background:var(--navy-mid);transform:translateY(-1px);}
+.btn-secondary{color:var(--navy);font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);padding-bottom:2px;transition:border-color .2s,color .2s;}
+.btn-secondary:hover{color:var(--green-dark);border-color:var(--green);}
+.hero-stats{display:flex;gap:2.5rem;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);}
+.stat-num{font-family:'Playfair Display',Georgia,serif;font-size:28px;font-weight:600;color:var(--navy);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:13px;color:var(--text-light);}
+.hero-visual{display:flex;align-items:center;justify-content:center;}
+.globe-wrap{animation:floatY 6s ease-in-out infinite;}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fu{animation:fadeUp .6s ease both;}
+.fu1{animation-delay:.1s;}.fu2{animation-delay:.25s;}.fu3{animation-delay:.4s;}.fu4{animation-delay:.55s;}
+
+/* STRIP */
+.strip{background:var(--navy);padding:18px 5%;display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;}
+.strip-item{font-size:13px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:8px;letter-spacing:.05em;text-transform:uppercase;font-weight:500;}
+.strip-item::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--green);display:inline-block;}
+
+/* SECTIONS */
+section{padding:100px 5%;}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dark);margin-bottom:1rem;}
+.section-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(28px,3vw,40px);font-weight:600;color:var(--navy);line-height:1.2;letter-spacing:-.02em;margin-bottom:1rem;max-width:560px;}
+.section-sub{font-size:16px;line-height:1.7;color:var(--text-mid);max-width:520px;margin-bottom:3.5rem;}
+
+/* WHY */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);}
+.why-item{background:var(--white);padding:2.5rem 2rem;}
+.why-num{font-family:'Playfair Display',Georgia,serif;font-size:48px;font-weight:600;color:rgba(29,78,137,.08);line-height:1;margin-bottom:1rem;}
+.why-title{font-size:16px;font-weight:500;color:var(--navy);margin-bottom:.5rem;}
+.why-desc{font-size:14px;line-height:1.65;color:var(--text-mid);}
+
+/* PILLARS */
+.pillars-bg{background:var(--off);}
+.pillars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.pillar-card{background:white;border:1px solid var(--border);padding:2rem 1.5rem;transition:border-color .2s,transform .2s;}
+.pillar-card:hover{border-color:var(--navy-mid);transform:translateY(-3px);}
+.pillar-card.featured{border-color:var(--green);}
+.pillar-icon{width:40px;height:40px;border-radius:2px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;}
+.pillar-num{font-size:11px;font-weight:500;color:var(--text-light);letter-spacing:.08em;margin-bottom:.5rem;}
+.pillar-title{font-size:16px;font-weight:500;color:var(--navy);margin-bottom:.5rem;}
+.pillar-card.featured .pillar-title{color:var(--green-dark);}
+.pillar-desc{font-size:13px;line-height:1.6;color:var(--text-mid);}
+
+/* POLAND */
+.poland-bg{background:var(--navy);color:white;}
+.poland-bg .section-label{color:rgba(255,255,255,.5);}
+.poland-bg .section-title{color:white;}
+.poland-bg .section-sub{color:rgba(255,255,255,.65);}
+.poland-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;}
+.poland-card{border:1px solid rgba(255,255,255,.1);padding:2rem;}
+.poland-card-title{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-bottom:1rem;}
+.poland-card ul{list-style:none;}
+.poland-card li{font-size:15px;color:rgba(255,255,255,.75);padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:flex-start;gap:10px;line-height:1.5;}
+.poland-card li:last-child{border-bottom:none;}
+.poland-card li::before{content:'—';color:var(--green);flex-shrink:0;margin-top:1px;}
+
+/* WAITLIST */
+.waitlist-bg{background:var(--green-light);text-align:center;padding:100px 5%;}
+.waitlist-bg .section-title{margin:0 auto 1rem;}
+.waitlist-bg .section-sub{margin:0 auto 2.5rem;}
+.waitlist-form{display:flex;max-width:480px;margin:0 auto;border:1.5px solid var(--navy);}
+.waitlist-form input{flex:1;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:15px;border:none;outline:none;background:white;color:var(--text);}
+.waitlist-form input::placeholder{color:var(--text-light);}
+.waitlist-form button{background:var(--navy);color:white;border:none;padding:14px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;}
+.waitlist-form button:hover{background:var(--navy-mid);}
+.waitlist-form button:disabled{opacity:.6;cursor:not-allowed;}
+#signup-note{font-size:12px;color:var(--text-light);margin-top:1rem;min-height:20px;}
+
+/* FOOTER */
+footer{background:var(--navy);padding:60px 5% 40px;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3rem;}
+.footer-brand p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.7;margin-top:1rem;max-width:280px;}
+.footer-col-title{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:1rem;}
+.footer-col a{display:block;font-size:14px;color:rgba(255,255,255,.6);text-decoration:none;margin-bottom:10px;transition:color .2s;}
+.footer-col a:hover{color:white;}
+.footer-bottom{background:var(--navy);padding:20px 5%;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;}
+.footer-bottom span{font-size:13px;color:rgba(255,255,255,.3);}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;padding:100px 5% 60px;min-height:auto;}
+  .hero-visual{display:none;}
+  .why-grid{grid-template-columns:1fr;}
+  .poland-grid{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" style="text-decoration:none;">
+    <svg width="180" height="38" viewBox="0 0 180 38" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="nc"><circle cx="19" cy="19" r="14.5"/></clipPath></defs>
+      <circle cx="19" cy="19" r="15" fill="none" stroke="#1D4E89" stroke-width="1.3"/>
+      <ellipse cx="11.5" cy="19" rx="7.5" ry="14.5" fill="none" stroke="#009246" stroke-width="1.3" clip-path="url(#nc)"/>
+      <ellipse cx="19" cy="19" rx="7.5" ry="14.5" fill="none" stroke="#d8d8d8" stroke-width="1.3" clip-path="url(#nc)"/>
+      <ellipse cx="26.5" cy="19" rx="7.5" ry="14.5" fill="none" stroke="#CE2B37" stroke-width="1.3" clip-path="url(#nc)"/>
+      <line x1="4" y1="19" x2="34" y2="19" stroke="#1D4E89" stroke-width=".6" stroke-dasharray="2.5,2"/>
+      <line x1="19" y1="4" x2="19" y2="34" stroke="#1D4E89" stroke-width=".6" stroke-dasharray="2.5,2"/>
+      <circle cx="19" cy="19" r="3.5" fill="#1D9E75"/>
+      <circle cx="19" cy="19" r="1.3" fill="white"/>
+      <text x="44" y="25" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#0D2247" letter-spacing="-.3">Nova</text>
+      <text x="90" y="25" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" font-weight="300" fill="#0D2247" letter-spacing="-.3">Strada</text>
+    </svg>
+  </a>
+  <div class="nav-links">
+    <a href="#perche">Perché NovaStrada</a>
+    <a href="#cosa-trovi">Cosa trovi</a>
+    <a href="#polonia">Polonia</a>
+    <a href="#waitlist" class="nav-cta">Entra in lista</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="eyebrow fu fu1"><span></span> Italiani in Polonia</div>
+    <h1 class="fu fu2">La <em>guida definitiva</em><br>per vivere e lavorare<br>in Polonia.</h1>
+    <p class="hero-sub fu fu3">Informazioni aggiornate su tasse, AIRE, lavoro e burocrazia. Una community attiva. Professionisti verificati. Tutto quello che serve per decidere con sicurezza.</p>
+    <div class="hero-actions fu fu4">
+      <a href="#waitlist" class="btn-primary">Entra in lista d'attesa</a>
+      <a href="#cosa-trovi" class="btn-secondary">Scopri di più →</a>
+    </div>
+    <div class="hero-stats fu fu4">
+      <div><div class="stat-num">90k+</div><div class="stat-label">Italiani in Polonia</div></div>
+      <div><div class="stat-num">5</div><div class="stat-label">Aree di contenuto</div></div>
+      <div><div class="stat-num">Free</div><div class="stat-label">Accesso base</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="globe-wrap">
+      <svg width="340" height="340" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="gc"><circle cx="170" cy="170" r="148"/></clipPath></defs>
+        <circle cx="170" cy="170" r="148" fill="none" stroke="rgba(29,78,137,0.12)" stroke-width="1.5"/>
+        <ellipse cx="113" cy="170" rx="57" ry="148" fill="none" stroke="rgba(0,146,70,0.2)" stroke-width="1.2" clip-path="url(#gc)"/>
+        <ellipse cx="170" cy="170" rx="57" ry="148" fill="none" stroke="rgba(200,200,200,0.2)" stroke-width="1.2" clip-path="url(#gc)"/>
+        <ellipse cx="227" cy="170" rx="57" ry="148" fill="none" stroke="rgba(206,43,55,0.2)" stroke-width="1.2" clip-path="url(#gc)"/>
+        <ellipse cx="79" cy="170" rx="34" ry="148" fill="none" stroke="rgba(29,78,137,0.06)" stroke-width=".8" clip-path="url(#gc)"/>
+        <ellipse cx="261" cy="170" rx="34" ry="148" fill="none" stroke="rgba(29,78,137,0.06)" stroke-width=".8" clip-path="url(#gc)"/>
+        <line x1="22" y1="170" x2="318" y2="170" stroke="rgba(29,78,137,0.1)" stroke-width=".75" stroke-dasharray="4,4"/>
+        <line x1="170" y1="22" x2="170" y2="318" stroke="rgba(29,78,137,0.1)" stroke-width=".75" stroke-dasharray="4,4"/>
+        <line x1="22" y1="125" x2="318" y2="125" stroke="rgba(29,78,137,0.06)" stroke-width=".5" stroke-dasharray="3,5"/>
+        <line x1="22" y1="215" x2="318" y2="215" stroke="rgba(29,78,137,0.06)" stroke-width=".5" stroke-dasharray="3,5"/>
+        <circle cx="180" cy="145" r="7" fill="#1D9E75" opacity=".9"/>
+        <circle cx="180" cy="145" r="2.8" fill="white"/>
+        <circle cx="180" cy="145" r="16" fill="none" stroke="#1D9E75" stroke-width=".8" opacity=".35"/>
+        <circle cx="180" cy="145" r="26" fill="none" stroke="#1D9E75" stroke-width=".5" opacity=".18"/>
+        <text x="194" y="139" font-family="'DM Sans',sans-serif" font-size="13" fill="rgba(29,78,137,0.7)" font-weight="500">Varsavia</text>
+        <circle cx="135" cy="182" r="4.5" fill="#1D4E89" opacity=".25"/>
+        <circle cx="210" cy="164" r="4" fill="#1D4E89" opacity=".18"/>
+        <circle cx="158" cy="200" r="3.5" fill="#1D4E89" opacity=".18"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-item">Tasse e fisco</div>
+  <div class="strip-item">AIRE e burocrazia</div>
+  <div class="strip-item">Lavoro e opportunità</div>
+  <div class="strip-item">Professionisti verificati</div>
+  <div class="strip-item">Community attiva</div>
+</div>
+
+<!-- PERCHÉ -->
+<section id="perche">
+  <div class="section-label">Il problema</div>
+  <h2 class="section-title">Perché informarsi sull'estero è ancora così difficile?</h2>
+  <p class="section-sub">Forum dispersivi, articoli datati, gruppi Facebook caotici. NovaStrada nasce per cambiare questo.</p>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-num">01</div>
+      <div class="why-title">Informazioni frammentate</div>
+      <div class="why-desc">Le risposte sono sparse su decine di fonti. Trovare quella giusta richiede ore senza garanzie di affidabilità.</div>
+    </div>
+    <div class="why-item">
+      <div class="why-num">02</div>
+      <div class="why-title">Contenuti non aggiornati</div>
+      <div class="why-desc">Le normative cambiano. I blog non seguono. Rischi di prendere decisioni importanti su informazioni di anni fa.</div>
+    </div>
+    <div class="why-item">
+      <div class="why-num">03</div>
+      <div class="why-title">Nessuna guida strutturata</div>
+      <div class="why-desc">Non esiste un punto di riferimento unico che copra tasse, burocrazia, lavoro e vita quotidiana in un posto solo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<section id="cosa-trovi" class="pillars-bg">
+  <div class="section-label">La piattaforma</div>
+  <h2 class="section-title">Tutto quello che serve, in un posto solo.</h2>
+  <p class="section-sub">Cinque aree pensate per accompagnarti in ogni fase del percorso all'estero.</p>
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-icon" style="background:#EEF3FA;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="#1D4E89" stroke-width="1.3"/><line x1="6" y1="7" x2="14" y2="7" stroke="#1D4E89" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="#1D4E89" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="13" x2="10" y2="13" stroke="#1D4E89" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pillar-num">01</div>
+      <div class="pillar-title">Guide pratiche</div>
+      <div class="pillar-desc">Tasse, AIRE, sanità, residenza. Guide aggiornate per ogni aspetto della vita in Polonia.</div>
+    </div>
+    <div class="pillar-card featured">
+      <div class="pillar-icon" style="background:#E1F5EE;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#1D9E75" stroke-width="1.3"/><circle cx="10" cy="10" r="2.5" fill="#1D9E75"/><line x1="10" y1="3" x2="10" y2="5" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="15" x2="10" y2="17" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="10" x2="5" y2="10" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/><line x1="15" y1="10" x2="17" y2="10" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pillar-num" style="color:var(--green);">02 — In arrivo</div>
+      <div class="pillar-title">Matching intelligente</div>
+      <div class="pillar-desc">Rispondi a poche domande e scopri se la Polonia è il paese giusto per te.</div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon" style="background:#EEF3FA;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="2" stroke="#1D4E89" stroke-width="1.3"/><path d="M6 6V5a4 4 0 018 0v1" stroke="#1D4E89" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pillar-num">03</div>
+      <div class="pillar-title">Lavoro & opportunità</div>
+      <div class="pillar-desc">Offerte per italiani e italian speaker. Posizioni locali e remote.</div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon" style="background:#EEF3FA;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="#1D4E89" stroke-width="1.3"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#1D4E89" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pillar-num">04</div>
+      <div class="pillar-title">Professionisti</div>
+      <div class="pillar-desc">Commercialisti e consulenti relocation verificati e specializzati.</div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon" style="background:#EEF3FA;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 8.5C17 13 10 18 10 18S3 13 3 8.5a7 7 0 0114 0z" stroke="#1D4E89" stroke-width="1.3"/><circle cx="10" cy="8.5" r="2.5" stroke="#1D4E89" stroke-width="1.3"/></svg>
+      </div>
+      <div class="pillar-num">05</div>
+      <div class="pillar-title">Community</div>
+      <div class="pillar-desc">Gruppi per città, eventi locali, supporto tra italiani in Polonia.</div>
+    </div>
+  </div>
+</section>
+
+<!-- POLONIA -->
+<section id="polonia" class="poland-bg">
+  <div class="section-label">Focus Polonia</div>
+  <h2 class="section-title">Perché la Polonia è una scelta sempre più popolare.</h2>
+  <p class="section-sub">Economia in crescita, costo della vita contenuto, vicinanza all'Italia. I numeri parlano chiaro.</p>
+  <div class="poland-grid">
+    <div class="poland-card">
+      <div class="poland-card-title">Vantaggi pratici</div>
+      <ul>
+        <li>Costo della vita 40–50% inferiore all'Italia</li>
+        <li>Economia stabile, tra le più solide dell'UE</li>
+        <li>Tassazione competitiva per lavoratori e imprese</li>
+        <li>Sistema sanitario pubblico accessibile agli expat</li>
+        <li>Mercato del lavoro in espansione, alta domanda</li>
+      </ul>
+    </div>
+    <div class="poland-card">
+      <div class="poland-card-title">Cosa copriamo</div>
+      <ul>
+        <li>Iscrizione AIRE e pratiche consolari</li>
+        <li>Partita IVA e tassazione per freelance</li>
+        <li>Residenza, PESEL e conto bancario</li>
+        <li>Riconoscimento titoli di studio italiani</li>
+        <li>Rientro in Italia: agevolazioni e incentivi</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist" class="waitlist-bg">
+  <div class="section-label">Early access</div>
+  <h2 class="section-title">NovaStrada apre presto.<br>Entra per primo.</h2>
+  <p class="section-sub">Iscriviti alla lista d'attesa e ricevi accesso anticipato, contenuti esclusivi e aggiornamenti sul lancio.</p>
+  <div class="waitlist-form">
+    <input type="email" placeholder="La tua email" id="email-input"/>
+    <button onclick="handleSignup()" id="signup-btn">Iscriviti</button>
+  </div>
+  <p id="signup-note">Nessuno spam. Solo aggiornamenti importanti sul lancio.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <svg width="160" height="36" viewBox="0 0 160 36" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="fc"><circle cx="18" cy="18" r="13.5"/></clipPath></defs>
+      <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>
+      <ellipse cx="11" cy="18" rx="7" ry="13.5" fill="none" stroke="#009246" stroke-width="1.2" clip-path="url(#fc)"/>
+      <ellipse cx="18" cy="18" rx="7" ry="13.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" clip-path="url(#fc)"/>
+      <ellipse cx="25" cy="18" rx="7" ry="13.5" fill="none" stroke="#CE2B37" stroke-width="1.2" clip-path="url(#fc)"/>
+      <line x1="4" y1="18" x2="32" y2="18" stroke="rgba(255,255,255,0.2)" stroke-width=".6" stroke-dasharray="2,2"/>
+      <line x1="18" y1="4" x2="18" y2="32" stroke="rgba(255,255,255,0.2)" stroke-width=".6" stroke-dasharray="2,2"/>
+      <circle cx="18" cy="18" r="3.5" fill="#1D9E75"/>
+      <circle cx="18" cy="18" r="1.3" fill="white"/>
+      <text x="40" y="24" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="-.3">Nova</text>
+      <text x="83" y="24" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="16" font-weight="300" fill="white" letter-spacing="-.3">Strada</text>
+    </svg>
+    <p>La piattaforma di riferimento per italiani all'estero. Iniziamo dalla Polonia.</p>
+  </div>
+  <div class="footer-col">
+    <div class="footer-col-title">Piattaforma</div>
+    <a href="#cosa-trovi">Guide pratiche</a>
+    <a href="#cosa-trovi">Lavoro</a>
+    <a href="#cosa-trovi">Professionisti</a>
+    <a href="#cosa-trovi">Community</a>
+  </div>
+  <div class="footer-col">
+    <div class="footer-col-title">Info</div>
+    <a href="#perche">Chi siamo</a>
+    <a href="#polonia">Focus Polonia</a>
+    <a href="#waitlist">Contatti</a>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2025 NovaStrada. Tutti i diritti riservati.</span>
+  <span>Privacy · Cookie</span>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rnnjovodmdeelhcoknjk.supabase.co'
+  const SUPABASE_ANON_KEY = 'sb_publishable_QBpBNLylhC_h-VpD4fERug_jRTk7-px'
+  const { createClient } = supabase
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  async function handleSignup() {
+    const input = document.getElementById('email-input')
+    const note = document.getElementById('signup-note')
+    const btn = document.getElementById('signup-btn')
+    const email = input.value.trim()
+
+    if (!email || !email.includes('@')) {
+      note.textContent = 'Inserisci un indirizzo email valido.'
+      note.style.color = '#CE2B37'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = '...'
+    note.textContent = ''
+    note.style.color = ''
+
+    const { error } = await db.from('waitlist').insert({ email, percorso: 'landing' })
+
+    if (error) {
+      if (error.code === '23505') {
+        note.textContent = 'Sei già in lista — ti contatteremo presto!'
+        note.style.color = 'var(--green-dark)'
+      } else {
+        note.textContent = 'Qualcosa non ha funzionato. Riprova.'
+        note.style.color = '#CE2B37'
+        btn.disabled = false
+        btn.textContent = 'Iscriviti'
+      }
+      return
+    }
+
+    input.value = ''
+    btn.textContent = '✓ Iscritto'
+    note.textContent = 'Perfetto! Ti contatteremo non appena lanciamo.'
+    note.style.color = 'var(--green-dark)'
+    note.style.fontWeight = '500'
+  }
+
+  document.getElementById('email-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSignup()
+  })
+</script>
+</body>
+</html>
